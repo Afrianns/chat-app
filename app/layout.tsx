@@ -1,5 +1,8 @@
+import { ClerkProvider, SignInButton, SignUpButton, UserButton, Show } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ThemeProvider } from "next-themes";
+import { ThemeToggle } from "./components/theme-toggle";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -21,9 +24,37 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="max-h-screen dark:bg-zinc-500 bg-zinc-300">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ClerkProvider>
+            <header className="flex items-center justify-between px-6 py-3 border-b border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+              <span className="font-semibold text-zinc-900 dark:text-zinc-100">Chat App</span>
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                <Show when="signed-out">
+                  <SignInButton>
+                    <button className="cursor-pointer text-sm px-4 py-1.5 rounded-md dark:bg-zinc-900 bg-zinc-100 dark:text-white text-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-300 transition-colors">
+                      Sign in
+                    </button>
+                  </SignInButton>
+                  <SignUpButton>
+                    <button className="cursor-pointer text-sm px-4 py-1.5 rounded-md dark:bg-zinc-900 bg-zinc-100 dark:text-white text-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-300 transition-colors">
+                      Sign up
+                    </button>
+                  </SignUpButton>
+                </Show>
+                <Show when="signed-in">
+                  <UserButton />
+                </Show>
+              </div>
+            </header>
+            {children}
+          </ClerkProvider>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
