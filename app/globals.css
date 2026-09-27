@@ -1,2 +1,10 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
+
+.wrapper-style {
+  @apply w-full max-w-360 mx-auto
+}
+
+.button-style{
+  @apply cursor-pointer bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-200 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 rounded-full py-2 px-10 uppercase text-sm font-semibold tracking-wide transition-all shadow-sm flex items-center gap-2;
+}
