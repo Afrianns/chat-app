@@ -1,7 +1,12 @@
-### Dummy User pertama
+# DOKUMENTASI PENJELASAN
+
+### Dummy User Pertama
 **EMAIL:** jackson@gmail.com
 **PASSWORD:** alskdj23jiajnlknKJKLSFJ
 
+### Dummy User Kedua
+**EMAIL:** alexander@gmail.com
+**PASSWORD:** asdjKASDj358kJKOHD
 
 ## Pemilihan Tech stack & Infrastruktur
 
