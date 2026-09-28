@@ -1,19 +1,17 @@
 import { ClerkProvider, SignInButton, SignUpButton, UserButton, Show } from "@clerk/nextjs";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Nunito } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ThemeToggle } from "./components/theme-toggle";
 import "./globals.css";
+import Image from "next/image";
+import LogoWrapper from "./components/logoWrapper";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const nunito = Nunito({
   subsets: ["latin"],
+  variable: "--font-nunito",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -26,14 +24,14 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      className={`${nunito.variable} antialiased`}
       suppressHydrationWarning
     >
       <body className="max-h-screen dark:bg-zinc-500 bg-zinc-300">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <ClerkProvider>
             <header className="flex items-center justify-between px-6 py-3 border-b border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-              <span className="font-semibold text-zinc-900 dark:text-zinc-100">Chat App</span>
+              <LogoWrapper />
               <div className="flex items-center gap-3">
                 <ThemeToggle />
                 <Show when="signed-out">
@@ -49,7 +47,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                   </SignUpButton>
                 </Show>
                 <Show when="signed-in">
-                  <UserButton />
+                  <UserButton appearance={{
+                    elements: {
+                        footerItem: "hidden!"
+                      }
+                  }} />
                 </Show>
               </div>
             </header>

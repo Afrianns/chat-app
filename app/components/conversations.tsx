@@ -45,7 +45,6 @@ export default function Conversation({ chatId }: { chatId: string }) {
         setConversationData(result.data.interlocutor);
         setMessages(result.data.messages);
 
-        // If there are unread incoming messages, mark them as read in DB and notify
         const hasUnread = result.data.messages.some(
           (m) => !m.is_readed && m.sender_clerk_id !== user?.id
         );
@@ -65,7 +64,6 @@ export default function Conversation({ chatId }: { chatId: string }) {
       const incomingMessage = data.message;
 
       // Realtime ONLY for receiver:
-      // The sender already added their message locally via doSendMessage.
       if (incomingMessage.sender_clerk_id !== user?.id) {
         setMessages((prevVal) => {
           if (prevVal.some((m) => m.id === incomingMessage.id)) {
@@ -74,12 +72,10 @@ export default function Conversation({ chatId }: { chatId: string }) {
           return [...prevVal, incomingMessage];
         });
 
-        // Since receiver is actively in this chat, mark it as read
         markMessagesAsRead(chatId);
       }
     };
 
-    // When interlocutor reads our messages, update read status in real-time
     const handleMessagesRead = (data: { chatId: string; readByClerkId: string }) => {
       if (data.chatId === chatId) {
         setMessages((prevVal) =>
@@ -111,7 +107,7 @@ export default function Conversation({ chatId }: { chatId: string }) {
     const result = await sendMessage(message, chatId);
     if (result.success && result.data) {
       setLoading(false);
-      // Sender adds message to own local state immediately
+      // set to local state
       setMessages((prevVal) => [...prevVal, result.data as MessagesType]);
       setMessage("");
     } else {
@@ -193,7 +189,7 @@ export default function Conversation({ chatId }: { chatId: string }) {
                   </div>
                 )}
 
-                <div className={`${(isUnread && user?.id !== messageItem.sender_clerk_id) && "ml-auto text-zinc-900 dark:text-zinc-100 bg-yellow-500/10"} flex items-start justify-between py-5`}>
+                <div className={`${(isUnread && user?.id !== messageItem.sender_clerk_id) && "ml-auto text-zinc-900 dark:text-zinc-100 bg-yellow-500/10"} flex items-start justify-between`}>
                   <div
                     className={`${user?.id === messageItem.sender_clerk_id ? "ml-auto text-white dark:text-black bg-zinc-900 dark:bg-zinc-100" : "text-black dark:text-white bg-zinc-200 dark:bg-zinc-800"} py-4 px-6 rounded-2xl w-fit max-w-125 transition-colors`}
                   >

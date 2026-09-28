@@ -116,6 +116,11 @@ export default function PreviewChats({
     );
   }
 
+  const handleSelectChat = (id: string) => {
+    window.history.pushState(null, '', `?chatId=${id}`);    
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  };
+
   return (
     <>
       {chatList.map((conversation) => {
@@ -137,10 +142,10 @@ export default function PreviewChats({
         }
 
         return (
-          <Link
-            href={`?chatId=${conversation.id}`}
+          <button
+            onClick={() => handleSelectChat(conversation.id)}
             key={conversation.id}
-            className={`flex items-center gap-x-4 cursor-pointer p-3 rounded-xl border transition-all ${
+            className={`flex items-center gap-x-4 cursor-pointer p-3 rounded-xl border transition-all w-full ${
               isActive
                 ? "bg-zinc-200 dark:bg-zinc-800 border-zinc-300 dark:border-zinc-600 shadow-xs"
                 : "hover:bg-white dark:hover:bg-zinc-800/80 border-zinc-200 dark:border-zinc-700/60"
@@ -192,7 +197,7 @@ export default function PreviewChats({
                 )}
               </div>
             </div>
-          </Link>
+          </button>
         );
       })}
     </>

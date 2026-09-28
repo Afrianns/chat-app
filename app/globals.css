@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+body {
+  font-family: var(--font-nunito), sans-serif;
+}
+
+
 .wrapper-style {
   @apply w-full max-w-360 mx-auto
 }
