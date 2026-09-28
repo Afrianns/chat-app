@@ -2,7 +2,6 @@
 
 import { currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/app/lib/prisma";
-import { redirect } from "next/navigation";
 
 export async function checkingUser() {
   const clerkUser = await currentUser();

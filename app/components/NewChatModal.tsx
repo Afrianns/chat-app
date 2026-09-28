@@ -75,11 +75,6 @@ export function NewChatModal({ users, onConversationCreated }: NewChatModalProps
       if (result.success && result.conversation) {
         handleClose();
         return router.push(`/?chatId=${result.conversation.id}`);
-        // if (onConversationCreated) {
-        //   // onConversationCreated(result.conversation.id);
-        // } else {
-        //   router.refresh();
-        // }
       }
     } catch (err: unknown) {
       if (err instanceof Error) {

@@ -2,9 +2,8 @@
 
 import { currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/app/lib/prisma";
-import { ConversationActiveType, ConversationType, InterlocutorType, MessagesType, PreviewConversationType } from "../types";
+import { ConversationType, InterlocutorType, MessagesType, PreviewConversationType } from "../types";
 import { getUser } from "./user";
-import Pusher from "pusher";
 import { pusher } from "./pusher";
 
 
@@ -31,6 +30,9 @@ interface PreviewConversationDataType {
       created_at: Date
       content: string
   }[];
+  _count?: {
+      messages: number
+  };
 }
 
 
@@ -70,7 +72,8 @@ export async function conversation(chatId: string): Promise<resultType<Conversat
               clerk_user_id: true
             }
           },
-          updated_at: true
+          updated_at: true,
+          is_readed: true
         }
       },
       user1: true,
@@ -127,6 +130,16 @@ export async function getActiveConversation(): Promise<resultType<PreviewConvers
             created_at: "desc"
           },
           take: 1,
+        },
+        _count: {
+          select: {
+            messages: {
+              where: {
+                sender_id: { not: userId },
+                is_readed: false
+              }
+            }
+          }
         }, 
         user1: {
           select: {
@@ -199,7 +212,8 @@ export async function sendMessage(message: string, chatId: string): Promise<resu
             clerk_user_id: true
           }
         },
-        updated_at: true
+        updated_at: true,
+        is_readed: true
       }
     })
 
@@ -208,7 +222,8 @@ export async function sendMessage(message: string, chatId: string): Promise<resu
       message: "Successfully send",
       data: {
         ...send,
-        sender_clerk_id: send.sender.clerk_user_id
+        sender_clerk_id: send.sender.clerk_user_id,
+        is_readed: send.is_readed
       }
     }
   } else{
@@ -262,6 +277,41 @@ export async function sendMessage(message: string, chatId: string): Promise<resu
 }
 
 
+export async function markMessagesAsRead(chatId: string): Promise<resultType<boolean>> {
+  const clerkUser = await currentUser();
+  const userId = await getUser();
+
+  if (!clerkUser || !userId) {
+    return { success: false, message: "Unauthorized" };
+  }
+
+  // Mark all messages from the interlocutor in this chat as read
+  await prisma.message.updateMany({
+    where: {
+      conversation_id: chatId,
+      sender_id: { not: userId },
+      is_readed: false,
+    },
+    data: {
+      is_readed: true,
+    },
+  });
+
+  // Notify chat room that messages were read
+  await pusher.trigger(`conversation-${chatId}`, "messages-read", {
+    chatId,
+    readByClerkId: clerkUser.id,
+  });
+
+  // Notify user's sidebar so unread badge clears
+  await pusher.trigger(`user-${clerkUser.id}`, "conversation-read", {
+    conversationId: chatId,
+  });
+
+  return { success: true, message: "Marked as read" };
+}
+
+
 const remapConversation = async (currentUserClerkId: string, conversations: PreviewConversationDataType[]): Promise<PreviewConversationType[]> => {
   return conversations.map(conversation => {
     let interlocutor = {
@@ -286,7 +336,8 @@ const remapConversation = async (currentUserClerkId: string, conversations: Prev
     return {
       id: conversation.id,
       interlocutor: interlocutor,
-      messages: conversation.messages
+      messages: conversation.messages,
+      unreadCount: conversation._count?.messages ?? 0
     }
   })
 }
@@ -297,6 +348,7 @@ interface UserConversationMessageMapType {
   content: string;
   created_at: Date;
   updated_at: Date;
+  is_readed: boolean;
   sender: {
     clerk_user_id: string;
   };
@@ -351,7 +403,8 @@ const remapMessages = (messages: UserConversationMessageMapType[]) => {
   return messages.map((message) => {
     return {
       ...message,
-      sender_clerk_id: message.sender.clerk_user_id
+      sender_clerk_id: message.sender.clerk_user_id,
+      is_readed: message.is_readed
     }
   })
 }

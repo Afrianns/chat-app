@@ -13,6 +13,7 @@ export interface MessagesType {
   conversation_id: string;
   sender_clerk_id: string;
   content: string;
+  is_readed: boolean;
 }
 
 export interface ConversationType {
@@ -40,4 +41,5 @@ export interface PreviewConversationType {
       created_at: Date
       content: string
   }[];
+  unreadCount?: number;
 }

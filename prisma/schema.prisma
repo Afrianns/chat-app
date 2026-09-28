@@ -44,6 +44,7 @@ model Message {
   updated_at      DateTime     @updatedAt
   conversation    Conversation @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
   sender          User         @relation(fields: [sender_id], references: [id], onDelete: Cascade)
+  is_readed        Boolean      @default(false)
 
   @@index([conversation_id, created_at])
 }

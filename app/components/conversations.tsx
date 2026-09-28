@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { conversation, sendMessage } from "../lib/conversationActions"
+import { conversation, sendMessage, markMessagesAsRead } from "../lib/conversationActions"
 import { InterlocutorType, MessagesType } from "../types";
 import { useUser } from "@clerk/nextjs";
 import { pusherClient } from "../lib/pusherClient";
@@ -44,6 +44,14 @@ export default function Conversation({ chatId }: { chatId: string }) {
       if (isMounted && result.success && result.data) {
         setConversationData(result.data.interlocutor);
         setMessages(result.data.messages);
+
+        // If there are unread incoming messages, mark them as read in DB and notify
+        const hasUnread = result.data.messages.some(
+          (m) => !m.is_readed && m.sender_clerk_id !== user?.id
+        );
+        if (hasUnread) {
+          markMessagesAsRead(chatId);
+        }
       }
     };
 
@@ -58,23 +66,39 @@ export default function Conversation({ chatId }: { chatId: string }) {
 
       // Realtime ONLY for receiver:
       // The sender already added their message locally via doSendMessage.
-      // So only add incoming message if it was sent by someone else:
       if (incomingMessage.sender_clerk_id !== user?.id) {
         setMessages((prevVal) => {
-          // Extra safety: avoid duplicate if already in state
           if (prevVal.some((m) => m.id === incomingMessage.id)) {
             return prevVal;
           }
           return [...prevVal, incomingMessage];
         });
+
+        // Since receiver is actively in this chat, mark it as read
+        markMessagesAsRead(chatId);
+      }
+    };
+
+    // When interlocutor reads our messages, update read status in real-time
+    const handleMessagesRead = (data: { chatId: string; readByClerkId: string }) => {
+      if (data.chatId === chatId) {
+        setMessages((prevVal) =>
+          prevVal.map((m) =>
+            m.sender_clerk_id !== data.readByClerkId
+              ? { ...m, is_readed: true }
+              : m
+          )
+        );
       }
     };
 
     channel.bind("new-message", handleNewMessage);
+    channel.bind("messages-read", handleMessagesRead);
 
     return () => {
       isMounted = false;
       channel.unbind("new-message", handleNewMessage);
+      channel.unbind("messages-read", handleMessagesRead);
       pusherClient.unsubscribe(channelName);
     };
   }, [chatId, user?.id]);
@@ -145,6 +169,9 @@ export default function Conversation({ chatId }: { chatId: string }) {
             } else {
               label = format(messageDate, "dd MMMM yyyy");
             }
+
+            const isUnread = !messageItem.is_readed;
+
             return (
               <div key={messageItem.id}>
                 {showSeparator && (
@@ -156,17 +183,23 @@ export default function Conversation({ chatId }: { chatId: string }) {
                     <div className="grow border-t border-zinc-200 dark:border-zinc-700"></div>
                   </div>
                 )}
-                <div
-                  className={`${
-                    user?.id === messageItem.sender_clerk_id
-                      ? "ml-auto text-white dark:text-black bg-zinc-900 dark:bg-zinc-100"
-                      : "text-black dark:text-white bg-zinc-200 dark:bg-zinc-800"
-                  } py-4 px-6 rounded-2xl w-fit max-w-125`}
-                >
-                  <p className="pr-5">{messageItem.content}</p>
-                  <span className="text-right block text-xs mt-1 opacity-75">
-                    {format(new Date(messageItem.created_at), "HH:mm")}
-                  </span>
+
+                <div className={`${isUnread && "ml-auto text-zinc-900 dark:text-zinc-100 bg-yellow-500/10"} flex items-start justify-between py-5`}>
+                  <div
+                    className={`${user?.id === messageItem.sender_clerk_id ? "ml-auto text-white dark:text-black bg-zinc-900 dark:bg-zinc-100" : "text-black dark:text-white bg-zinc-200 dark:bg-zinc-800"} py-4 px-6 rounded-2xl w-fit max-w-125 transition-colors`}
+                  >
+                    <p className="pr-5">{messageItem.content}</p>
+                    <div className="flex items-center justify-end gap-2 mt-1">
+                      <span className="text-right block text-xs opacity-75">
+                        {format(new Date(messageItem.created_at), "HH:mm")}
+                      </span>
+                    </div>
+                  </div>
+                  {isUnread && (
+                    <span className="text-right block text-[10px] font-semibold text-yellow-600 dark:text-yellow-400">
+                      Belum dibaca
+                    </span>
+                  )}
                 </div>
               </div>
             );

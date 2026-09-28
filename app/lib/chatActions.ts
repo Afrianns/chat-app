@@ -10,7 +10,6 @@ export async function createOrGetConversation(partnerId: string) {
     throw new Error("Cannot start conversation with yourself");
   }
 
-  // Check if conversation already exists between these two users
   const existingConversation = await prisma.conversation.findFirst({
     where: {
       OR: [
