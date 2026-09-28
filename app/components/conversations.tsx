@@ -227,7 +227,7 @@ export default function Conversation({ chatId }: { chatId: string }) {
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             className="inline-block w-full py-3 px-5 border-2 border-zinc-300 dark:border-zinc-600 bg-zinc-100 dark:bg-zinc-950 rounded-full outline-none focus:border-zinc-500"
-            placeholder="Tulis pesan (tekan Enter untuk kirim)..."
+            placeholder="Tulis pesan disini..."
           />
           {!loading ? (
             <button

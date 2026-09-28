@@ -90,7 +90,6 @@ export function NewChatModal({ users, onConversationCreated }: NewChatModalProps
 
   return (
     <>
-      {/* Trigger Button: Chat Baru */}
       <button
         type="button"
         onClick={handleOpen}
@@ -100,7 +99,6 @@ export function NewChatModal({ users, onConversationCreated }: NewChatModalProps
         <span>Chat Baru</span>
       </button>
 
-      {/* Modal / Popup */}
       {isOpen && (
         <div
           role="dialog"

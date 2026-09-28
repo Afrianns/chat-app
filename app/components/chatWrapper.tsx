@@ -31,7 +31,7 @@ export default function ChatWrapper() {
           <h3 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200">
             Selamat Datang di Chat App
           </h3>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-sm mt-1">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-sm mt-1 text-center">
             Klik tombol &quot;Chat Baru&quot; di sisi kiri untuk memilih pengguna dan memulai percakapan.
           </p>
         </div>
