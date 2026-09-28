@@ -145,8 +145,17 @@ export default function Conversation({ chatId }: { chatId: string }) {
               </div>
             )}
             <div>
-              <h1 className="font-bold">{conversationData.username}</h1>
-              <p className="text-zinc-500 text-sm">{conversationData.email}</p>
+              {(conversationData.username && conversationData.email) ?
+                  <>
+                    <h1 className="font-bold">{conversationData.username}</h1>
+                    <p className="text-zinc-500 text-sm">{conversationData.email}</p>
+                  </>
+                :
+                  <div className="space-y-3">
+                    <span className="bg-zinc-300 py-3 px-20 rounded-md block"></span>
+                    <p className="bg-zinc-300 py-2 px-10 w-fit rounded-md block"></p>
+                  </div>
+              }
             </div>
           </div>
         </div>
@@ -195,7 +204,7 @@ export default function Conversation({ chatId }: { chatId: string }) {
                       </span>
                     </div>
                   </div>
-                  {isUnread && (
+                  {(isUnread && user?.id !== messageItem.sender_clerk_id) && (
                     <span className="text-right block text-[10px] font-semibold text-yellow-600 dark:text-yellow-400">
                       Belum dibaca
                     </span>
