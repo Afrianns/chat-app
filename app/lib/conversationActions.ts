@@ -16,10 +16,12 @@ interface resultType<T> {
 interface PreviewConversationDataType {
   id: string
   user1: {
+      avatar: string
       username: string
       clerk_user_id: string
   };
   user2: {
+      avatar: string
       username: string
       clerk_user_id: string
   };
@@ -55,7 +57,20 @@ export async function conversation(chatId: string): Promise<resultType<Conversat
       id: chatId,
     },
     select: {
-      messages: true,
+      messages: {
+        select: {
+          id: true,
+          content: true,
+          created_at: true,
+          conversation_id: true,
+          sender: {
+            select: {
+              clerk_user_id: true
+            }
+          },
+          updated_at: true
+        }
+      },
       user1: true,
       user2: true
     }
@@ -113,12 +128,14 @@ export async function getActiveConversation(): Promise<resultType<PreviewConvers
         }, 
         user1: {
           select: {
+            avatar: true,
             clerk_user_id: true,
             username: true
           }
         },
         user2: {
           select: {
+            avatar: true,
             clerk_user_id: true,
             username: true
           }
@@ -170,12 +187,27 @@ export async function sendMessage(message: string, chatId: string): Promise<resu
         sender_id: userId,
         content: message
       },
+      select: {
+        id: true,
+        content: true,
+        created_at: true,
+        conversation_id: true,
+        sender: {
+          select: {
+            clerk_user_id: true
+          }
+        },
+        updated_at: true
+      }
     })
 
     result = {
       success: true,
       message: "Successfully send",
-      data: send
+      data: {
+        ...send,
+        sender_clerk_id: send.sender.clerk_user_id
+      }
     }
   } else{
     result = {
@@ -191,20 +223,24 @@ export async function sendMessage(message: string, chatId: string): Promise<resu
 const remapConversation = async (currentUserClerkId: string, conversations: PreviewConversationDataType[]): Promise<PreviewConversationType[]> => {
   return conversations.map(conversation => {
     let interlocutor = {
+      avatar: "",
       username: "",
       clerk_user_id: ""
     }
     if(conversation.user1.clerk_user_id != currentUserClerkId) {
       interlocutor = {
+        avatar: conversation.user1.avatar,
         username: conversation.user1.username,
         clerk_user_id: conversation.user1.clerk_user_id
       }
     } else{
       interlocutor = {
+        avatar: conversation.user2.avatar,
         username: conversation.user2.username,
         clerk_user_id: conversation.user2.clerk_user_id
       }
     }
+
     return {
       id: conversation.id,
       interlocutor: interlocutor,
@@ -213,28 +249,34 @@ const remapConversation = async (currentUserClerkId: string, conversations: Prev
   })
 }
 
-interface UserConversationType {
- messages: {
-    id: string;
-    created_at: Date;
-    content: string;
-    updated_at: Date;
-    conversation_id: string;
-    sender_id: string;
- }[];
- user1: {
-    id: string;
-    created_at: Date;
-    username: string;
-    email: string;
+interface UserConversationMessageMapType {
+  id: string;
+  conversation_id: string;
+  content: string;
+  created_at: Date;
+  updated_at: Date;
+  sender: {
     clerk_user_id: string;
+  };
+}
+
+interface UserConversationType {
+ messages: UserConversationMessageMapType[]
+ user1: {
+    id: string
+    created_at: Date
+    username: string
+    avatar: string | null
+    email: string
+    clerk_user_id: string
  };
  user2: {
     id: string;
-    created_at: Date;
-    username: string;
-    email: string;
-    clerk_user_id: string;
+    created_at: Date
+    username: string
+    avatar: string | null
+    email: string
+    clerk_user_id: string
  };
 }
 
@@ -245,18 +287,29 @@ const filterNotCurrentUser = async (clerkId: string, conversation: UserConversat
     id: "",
     email: "",
     username: "",
+    avatar: "",
     clerk_user_id: "",
     created_at: new Date()
   }
 
   if(conversation.user1.clerk_user_id != clerkId) {
-    interlocutor = conversation.user1
+    interlocutor = {...conversation.user1, avatar: conversation.user1.avatar as string}
   } else{
-    interlocutor = conversation.user2
+    interlocutor = {...conversation.user2, avatar: conversation.user2.avatar as string}
   }
 
   return {
     interlocutor: interlocutor,
-    messages: conversation.messages
+    messages: remapMessages(conversation.messages)
   }
+}
+
+
+const remapMessages = (messages: UserConversationMessageMapType[]) => {
+  return messages.map((message) => {
+    return {
+      ...message,
+      sender_clerk_id: message.sender.clerk_user_id
+    }
+  })
 }

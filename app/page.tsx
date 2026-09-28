@@ -1,21 +1,23 @@
+"use server"
+
 import { redirect } from "next/navigation";
 import { checkingUser } from "./lib/user";
 import { getAllUsers } from "./lib/chatActions";
 import { NewChatModal } from "./components/NewChatModal";
-import ChatWrapper from "./components/chatWrapper";
 import { getActiveConversation } from "./lib/conversationActions";
-import { ConversationActiveType, PreviewConversationType } from "./types";
-import { format } from "date-fns";
-import Link from "next/link";
+import { PreviewConversationType } from "./types";
+
+import ChatWrapper from "./components/chatWrapper";
+import PreviewChats from "./components/previewChats";
 
 export default async function Home() {
-  let user;
-
+  
   let conversations: PreviewConversationType[] = []
-
+  
+  let user;
   try {
     user = await checkingUser();
-  } catch {
+  } catch(err) {
     redirect("/sign-in");
   }
 
@@ -38,17 +40,7 @@ export default async function Home() {
           <h3 className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs uppercase tracking-wider">
             Obrolan Kamu
           </h3>
-          {conversations.map((conversation) => {
-            return (
-              <Link href={`?chatId=${conversation.id}`} key={conversation.id} className="block cursor-pointer p-3 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 space-y-1">
-                <h3 className="font-medium text-zinc-900 dark:text-zinc-100 text-md">{conversation.interlocutor.username}</h3>
-                <div className="flex items-center justify-between mt-2">
-                  <h3 className="font-medium text-zinc-500 dark:text-zinc-100 text-sm">{conversation.messages[0].content}</h3>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-100">{format(conversation.messages[0].created_at, 'HH:mm')}</p>
-                </div>
-              </Link>
-            )
-          })}
+          <PreviewChats conversations={conversations} />
         </div>
       </div>
       <div className="bg-zinc-50 dark:bg-zinc-950 w-full h-full flex flex-col items-center justify-center">

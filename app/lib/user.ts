@@ -2,25 +2,26 @@
 
 import { currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/app/lib/prisma";
+import { redirect } from "next/navigation";
 
 export async function checkingUser() {
   const clerkUser = await currentUser();
 
   if (!clerkUser) {
-    throw new Error("Unauthorized");
+    throw new Error("clerk user not found");
   }
-
+  
   const email = clerkUser.emailAddresses[0]?.emailAddress;
-
+  
   if (!email) {
     throw new Error("User email not found");
   }
-
+  
   const username =
     clerkUser.username ??
     clerkUser.firstName ??
     email.split("@")[0];
-
+  
   const user = await prisma.user.upsert({
     where: {
       clerk_user_id: clerkUser.id,
@@ -28,6 +29,7 @@ export async function checkingUser() {
     update: {
       username,
       email,
+      avatar: clerkUser.imageUrl
     },
     create: {
       clerk_user_id: clerkUser.id,
@@ -35,7 +37,6 @@ export async function checkingUser() {
       email,
     },
   });
-
   return user;
 }
 

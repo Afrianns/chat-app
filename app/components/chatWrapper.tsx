@@ -2,36 +2,14 @@
 
 import { useSearchParams } from "next/navigation"
 import Conversation from "./conversations"
-import { useEffect, useState } from "react"
-import { getActiveConversation } from "../lib/conversationActions"
-import { ConversationActiveType } from "../types"
-
-
 
 export default function ChatWrapper() {
 
-  // const [conversation, setCoversation] = useState<ConversationActiveType[]>([])
-
   const searchParams = useSearchParams()
   const chatId = searchParams.get('chatId')
-
-  // useEffect(() => {
-    
-  //   const doGetActiveConversation = async () => {
-  //     const result = await getActiveConversation()
-
-  //     if(result.success && result.data) {
-  //       setCoversation(result.data)
-  //     }
-  //   }
-
-
-  //   doGetActiveConversation()
-  // }, [])
-
   return (
     <>
-      {chatId ? 
+      {chatId ?
         <Conversation chatId={chatId} />
       :
         <div className="flex flex-col items-center">

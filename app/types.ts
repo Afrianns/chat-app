@@ -1,6 +1,7 @@
 export interface InterlocutorType {
     id: string
     email: string
+    avatar: string
     clerk_user_id: string
     created_at: Date
     username: string
@@ -10,7 +11,7 @@ export interface MessagesType {
   id: string;
   created_at: Date;
   conversation_id: string;
-  sender_id: string;
+  sender_clerk_id: string;
   content: string;
   updated_at: Date;
 }[]
@@ -32,8 +33,9 @@ export interface ConversationActiveType {
 export interface PreviewConversationType {
   id: string
   interlocutor: {
-      username: string
-      clerk_user_id: string
+    avatar: string
+    username: string
+    clerk_user_id: string
   };
   messages: {
       created_at: Date
