@@ -31,7 +31,7 @@ export default async function Home() {
 
   return (
     <div className="flex h-[calc(100vh-92px)] justify-center">
-      <div className="bg-zinc-100 dark:bg-zinc-900 shadow-md w-1/3 h-full border-r border-zinc-300 dark:border-zinc-600 flex flex-col">
+      <div className="bg-zinc-100 dark:bg-zinc-900 shadow-md w-125 h-full border-r border-zinc-300 dark:border-zinc-600 flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 bg-zinc-200 dark:bg-zinc-800 border-b border-zinc-300 dark:border-zinc-700">
           <NewChatModal users={allUsers} />
         </div>
