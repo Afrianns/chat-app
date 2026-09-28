@@ -4,6 +4,8 @@ import { currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/app/lib/prisma";
 import { ConversationActiveType, ConversationType, InterlocutorType, MessagesType, PreviewConversationType } from "../types";
 import { getUser } from "./user";
+import Pusher from "pusher";
+import { pusher } from "./pusher";
 
 
 interface resultType<T> {
@@ -213,6 +215,46 @@ export async function sendMessage(message: string, chatId: string): Promise<resu
     result = {
       message: "User not found",
       success: false
+    }
+  }
+
+  if (result.success && result.data) {
+    // 1. Trigger realtime message for the active chat room
+    await pusher.trigger(`conversation-${chatId}`, "new-message", {
+      message: result.data,
+    });
+
+    // 2. Find participants to update their sidebar in real-time
+    const conversationInfo = await prisma.conversation.findUnique({
+      where: { id: chatId },
+      select: {
+        user1: { select: { clerk_user_id: true } },
+        user2: { select: { clerk_user_id: true } },
+      },
+    });
+
+    if (conversationInfo) {
+      const updatePayload = {
+        conversationId: chatId,
+        lastMessage: {
+          content: result.data.content,
+          created_at: result.data.created_at,
+        },
+        senderClerkId: clerkUser.id,
+      };
+
+      // Trigger sidebar update for receiver
+      const receiverClerkId =
+        conversationInfo.user1.clerk_user_id === clerkUser.id
+          ? conversationInfo.user2.clerk_user_id
+          : conversationInfo.user1.clerk_user_id;
+
+      if (receiverClerkId) {
+        await pusher.trigger(`user-${receiverClerkId}`, "conversation-updated", updatePayload);
+      }
+
+      // Also trigger sidebar update for sender (for sync across tabs)
+      await pusher.trigger(`user-${clerkUser.id}`, "conversation-updated", updatePayload);
     }
   }
 

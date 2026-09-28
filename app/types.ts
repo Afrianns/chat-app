@@ -13,8 +13,7 @@ export interface MessagesType {
   conversation_id: string;
   sender_clerk_id: string;
   content: string;
-  updated_at: Date;
-}[]
+}
 
 export interface ConversationType {
   interlocutor: InterlocutorType
