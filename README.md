@@ -1,5 +1,9 @@
 # DOKUMENTASI PENJELASAN
 
+Link Website: ![Link Chat Aplikasi](https://chat-app-psi-nine-79.vercel.app)
+
+## Dummy User List
+
 ### Dummy User Pertama
 **EMAIL:** jackson@gmail.com
 **PASSWORD:** alskdj23jiajnlknKJKLSFJ
@@ -23,3 +27,49 @@
 **Pusher**, Informasi obrolan secara _realtime_, konfigurasi yang mudah serta free tier dengan _resources_ yang lebih besar.
 
 **Vercel**, Kemudahan dalam integrasi langsung dengan next secara serverless serta support optimisasi nextjs di vercel mengingat vercel sebagai maintainer dari NextJS itu sendiri. 
+
+## Struktur Tabel
+
+<img width="2157" height="1385" alt="schema" src="https://github.com/user-attachments/assets/32120a1f-68db-4726-8fb4-34dd37f84158" />
+
+### SQL query
+```
+CREATE TABLE public.User (
+  id text NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  username text NOT NULL,
+  email text NOT NULL,
+  clerk_user_id text NOT NULL,
+  avatar text,
+  CONSTRAINT User_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.Conversation (
+  id text NOT NULL,
+  first_user_id text NOT NULL,
+  second_user_id text NOT NULL,
+  createdAt timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt timestamp without time zone NOT NULL,
+  CONSTRAINT Conversation_pkey PRIMARY KEY (id),
+  CONSTRAINT Conversation_first_user_id_fkey FOREIGN KEY (first_user_id) REFERENCES public.User(id),
+  CONSTRAINT Conversation_second_user_id_fkey FOREIGN KEY (second_user_id) REFERENCES public.User(id)
+);
+CREATE TABLE public.Message (
+  id text NOT NULL,
+  conversation_id text NOT NULL,
+  sender_id text NOT NULL,
+  content text NOT NULL,
+  created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp without time zone NOT NULL,
+  is_readed boolean NOT NULL DEFAULT false,
+  CONSTRAINT Message_pkey PRIMARY KEY (id),
+  CONSTRAINT Message_conversation_id_fkey FOREIGN KEY (conversation_id) REFERENCES public.Conversation(id),
+  CONSTRAINT Message_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.User(id)
+);
+```
+
+
+## AI Tool yang digunakan
+
+- Gemini _Google Search_
+- ChatGPT
+- Antigravity (Model: Gemini flash, Claude Opus [free version] )
