@@ -184,7 +184,7 @@ export default function Conversation({ chatId }: { chatId: string }) {
                   </div>
                 )}
 
-                <div className={`${isUnread && "ml-auto text-zinc-900 dark:text-zinc-100 bg-yellow-500/10"} flex items-start justify-between py-5`}>
+                <div className={`${(isUnread && user?.id !== messageItem.sender_clerk_id) && "ml-auto text-zinc-900 dark:text-zinc-100 bg-yellow-500/10"} flex items-start justify-between py-5`}>
                   <div
                     className={`${user?.id === messageItem.sender_clerk_id ? "ml-auto text-white dark:text-black bg-zinc-900 dark:bg-zinc-100" : "text-black dark:text-white bg-zinc-200 dark:bg-zinc-800"} py-4 px-6 rounded-2xl w-fit max-w-125 transition-colors`}
                   >
