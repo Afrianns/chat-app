@@ -8,11 +8,9 @@ export default function LogoWrapper() {
 
   return (
     <>
-      {resolvedTheme == "dark" ? 
-        <Image src="/logo/akselera-logo.png" width={120} height={100} alt="akselera tech logo" />
-      :
-        <Image src="/logo/akselera-logo-dark.png" width={120} height={100} alt="akselera tech logo" />
-      }
+      <Image src="/logo/akselera-logo.png" width={120} height={100} alt="akselera tech logo" className="hidden dark:block" />
+      <Image src="/logo/akselera-logo-dark.png" width={120} height={100} alt="akselera tech logo" className="block dark:hidden" />
+      
     </>
   )
 }

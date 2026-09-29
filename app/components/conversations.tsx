@@ -148,8 +148,8 @@ export default function Conversation({ chatId }: { chatId: string }) {
                   </>
                 :
                   <div className="space-y-3">
-                    <span className="bg-zinc-300 py-3 px-20 rounded-md block"></span>
-                    <p className="bg-zinc-300 py-2 px-10 w-fit rounded-md block"></p>
+                    <span className="bg-zinc-300 dark:bg-zinc-800 py-3 px-20 rounded-md block"></span>
+                    <p className="bg-zinc-300 dark:bg-zinc-800 py-2 px-10 w-fit rounded-md block"></p>
                   </div>
               }
             </div>
@@ -213,7 +213,7 @@ export default function Conversation({ chatId }: { chatId: string }) {
         </div>
       ) : (
         <div className="max-w-200 text-center mx-auto mt-auto mb-10">
-          <p className="py-2 px-5 bg-zinc-200 dark:bg-zinc-600 text-zinc-800 dark:text-zinc-300 rounded-2xl">
+          <p className="py-2 px-5 bg-zinc-200 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-400 rounded-2xl">
             Belum terdapat obrolan, mulai obrolan sekarang!
           </p>
         </div>
