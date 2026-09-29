@@ -66,6 +66,36 @@ CREATE TABLE public.Message (
   CONSTRAINT Message_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.User(id)
 );
 ```
+## Cara menjalankan secara lokal
+
+- Clone repo
+- buat `env` lokal dengan format seperti ini:
+
+```
+# Clerk routing
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/
+
+# Clerk
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+
+# Supabase database URL
+DATABASE_URL=""
+
+# Pusher credential
+PUSHER_APP_ID = ""
+PUSHER_KEY = ""
+PUSHER_SECRET = ""
+PUSHER_CLUSTER = ""
+NEXT_PUBLIC_PUSHER_KEY = ""
+NEXT_PUBLIC_PUSHER_CLUSTER = ""
+
+```
+- lakukan "npm install" atau "npm i"
+- jalankan "npm run dev" atau "npm run build"
 
 
 ## AI Tool yang digunakan
@@ -73,3 +103,9 @@ CREATE TABLE public.Message (
 - Gemini _Google Search_
 - ChatGPT
 - Antigravity (Model: Gemini flash, Claude Opus [free version] )
+
+## Hal yang belum selesai
+
+- Responsifitas di mobile (untuk sekarang hanya _desktop_)
+- Kecepatan dalam mengirim pesan atau pengiriman instan
+- belum terdapat sistem pencarian di ``sidebar preview chat``. 
